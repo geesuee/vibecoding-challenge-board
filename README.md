@@ -10,13 +10,45 @@
 - **ORM**: Prisma
 - **스타일링**: Tailwind CSS
 
-## 🚀 배포
+## �� 배포
 
-이 프로젝트는 Vercel에 최적화되어 있습니다:
+이 프로젝트는 Vercel과 Supabase를 사용하여 배포됩니다:
 
-1. Supabase 프로젝트 생성
-2. 환경 변수 설정
-3. Vercel에 배포
+### 빠른 배포
+
+```bash
+# 1. Supabase 프로젝트 생성 후 환경 변수 설정
+# 2. 배포 실행
+./deploy.sh
+```
+
+### 수동 배포
+
+1. **Supabase 설정**
+   - [Supabase](https://supabase.com)에서 새 프로젝트 생성
+   - Database > Settings에서 연결 정보 확인
+
+2. **환경 변수 설정**
+   ```bash
+   vercel env add DATABASE_URL
+   vercel env add NEXT_PUBLIC_SUPABASE_URL
+   vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
+   ```
+
+3. **데이터베이스 마이그레이션**
+   ```bash
+   cd frontend
+   npx prisma db push
+   npx prisma db seed
+   ```
+
+4. **배포**
+   ```bash
+   cd frontend
+   vercel --prod
+   ```
+
+자세한 배포 가이드는 [DEPLOYMENT.md](./DEPLOYMENT.md)를 참조하세요.
 
 ## 📦 설치 및 실행
 
@@ -29,15 +61,15 @@ npm install
 
 ### 2. 환경 변수 설정
 
-`.env.local` 파일을 생성하고 다음 변수들을 설정하세요:
+`frontend/env.example`을 참조하여 `.env.local` 파일을 생성하세요:
 
 ```env
 # Supabase Database URLs
 DATABASE_URL="postgres://[DB-USER].[PROJECT-REF]:[PRISMA-PASSWORD]@[DB-REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
-DIRECT_URL="postgres://[DB-USER].[PROJECT-REF]:[PRISMA-PASSWORD]@[DB-REGION].pooler.supabase.com:5432/postgres"
 
-# API Base URL
-NEXT_PUBLIC_API_URL="/api"
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 ```
 
 ### 3. 데이터베이스 설정
@@ -76,9 +108,12 @@ challenge-board/
 │   │   └── dashboard/     # 대시보드 페이지
 │   ├── components/        # React 컴포넌트
 │   ├── lib/              # 유틸리티 함수
+│   │   └── supabase.ts   # Supabase 클라이언트
 │   ├── prisma/           # 데이터베이스 스키마
 │   └── src/              # 소스 코드
 ├── vercel.json           # Vercel 배포 설정
+├── deploy.sh             # 배포 스크립트
+├── DEPLOYMENT.md         # 배포 가이드
 └── README.md
 ```
 
@@ -123,19 +158,18 @@ model Certification {
 }
 ```
 
-## 🚀 배포
+## 🚀 배포 스크립트
 
-### Vercel 배포
+### 자동 배포
+```bash
+./deploy.sh
+```
 
-1. GitHub에 코드 푸시
-2. Vercel에서 프로젝트 연결
-3. 환경 변수 설정
-4. 배포 완료
-
-### 환경 변수 설정 (Vercel)
-
-- `DATABASE_URL`: Supabase 트랜잭션 모드 연결 문자열
-- `DIRECT_URL`: Supabase 세션 모드 연결 문자열
+### 수동 배포
+```bash
+cd frontend
+npm run deploy
+```
 
 ## 📝 라이선스
 

@@ -37,15 +37,22 @@ npx prisma db push
 npm install
 
 # 환경 변수 설정
-cp .env.example .env.local
-# .env.local 파일에서 DATABASE_URL을 설정
+cp env.example .env.local
+# .env.local 파일에서 Supabase 설정을 추가
 
-# 데이터베이스 마이그레이션
-npx prisma db push
+# Supabase 연결 및 테이블 생성
+npm run supabase:setup
+
+# 또는 Prisma를 사용한 설정
+npm run db:setup
 
 # 개발 서버 시작
 npm run dev
 ```
+
+### 5. Supabase 설정
+
+자세한 설정 방법은 [SETUP.md](./SETUP.md) 파일을 참조하세요.
 
 ## 기술 스택
 
