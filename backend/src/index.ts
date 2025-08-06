@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 
 // 미들웨어
 app.use(cors({
@@ -26,16 +26,23 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// 루트 경로
+app.get('/', (req, res) => {
+  res.json({ message: 'Challenge Board API', status: 'OK' });
+});
+
 // 서버 시작
 async function startServer() {
   try {
     await prisma.$connect();
     console.log('✅ Database connected successfully');
     
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      });
+    }
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
@@ -49,4 +56,7 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-startServer(); 
+startServer();
+
+// Vercel Functions용 export
+export default app; 
