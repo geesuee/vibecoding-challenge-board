@@ -129,25 +129,48 @@ npm run dev
 
 ## 🚀 배포
 
-### Vercel 배포
+### 자동 배포 (권장)
 
-1. **데이터베이스 설정**
-   - [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) 또는 [Neon](https://neon.tech/)에서 PostgreSQL 데이터베이스 생성
-   - 데이터베이스 URL 복사
+```bash
+# 배포 스크립트 실행
+./deploy.sh
+```
 
-2. **Vercel 프로젝트 생성**
-   - [Vercel](https://vercel.com)에 로그인
-   - GitHub 저장소 연결
-   - 환경 변수 설정:
-     - `DATABASE_URL`: PostgreSQL 데이터베이스 URL
-     - `NEXT_PUBLIC_API_URL`: 배포된 도메인 URL
+### 수동 배포
 
-3. **배포**
-   - "Deploy" 클릭
-   - 배포 후 Vercel 대시보드에서 데이터베이스 마이그레이션 실행:
-     ```bash
-     npx prisma db push
-     ```
+#### 1. 데이터베이스 설정
+- [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) 또는 [Neon](https://neon.tech/)에서 PostgreSQL 데이터베이스 생성
+- 데이터베이스 URL 복사
+
+#### 2. 백엔드 배포
+```bash
+cd backend
+npm install
+npm run build
+vercel --prod
+```
+
+#### 3. 프론트엔드 배포
+```bash
+cd frontend
+npm install
+# .env.local 파일에 백엔드 URL 설정
+echo "NEXT_PUBLIC_API_URL=https://your-backend.vercel.app/api" > .env.local
+vercel --prod
+```
+
+#### 4. 환경 변수 설정
+Vercel 대시보드에서 다음 환경 변수를 설정:
+- `DATABASE_URL`: PostgreSQL 데이터베이스 URL
+- `CORS_ORIGIN`: 프론트엔드 도메인 URL
+- `NODE_ENV`: production
+
+#### 5. 데이터베이스 마이그레이션
+배포 후 Vercel 대시보드에서 데이터베이스 마이그레이션 실행:
+```bash
+npx prisma db push
+npx prisma generate
+```
 
 ## 📚 API 문서
 
