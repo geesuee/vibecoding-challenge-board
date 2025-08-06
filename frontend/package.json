@@ -1,10 +1,11 @@
 {
-  "name": "next-app",
+  "name": "challenge-board-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "prisma generate && next build --no-lint",
+    "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -13,7 +14,6 @@
   "dependencies": {
     "@prisma/client": "^5.0.0",
     "@react-google-maps/api": "^2.19.3",
-    "cors": "^2.8.5",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -21,12 +21,10 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/cors": "^2.8.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
-    "cross-env": "^7.0.3",
     "eslint": "^9.32.0",
     "postcss": "^8.5.5",
     "prisma": "^5.0.0",

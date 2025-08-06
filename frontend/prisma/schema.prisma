@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Challenge {
@@ -20,13 +20,27 @@ model Challenge {
   description   String
   startDate     String
   endDate       String
-  progress      Int      @default(0)
   status        String   @default("active") // active, completed
   image         String?
   tasks         String   // JSON string of tasks
-  certifications String  // JSON string of certifications
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  // Relations
+  certifications Certification[]
+
   @@map("challenges")
+}
+
+model Certification {
+  id          String    @id @default(cuid())
+  challengeId String
+  date        String
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, date])
+  @@map("certifications")
 } 

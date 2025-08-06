@@ -13,6 +13,17 @@ interface ChallengeCardProps {
 export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps) {
   const [isPressed, setIsPressed] = useState(false);
 
+  // 디버깅을 위한 로그 추가
+  console.log('ChallengeCard render:', {
+    id: challenge.id,
+    name: challenge.name,
+    progress: challenge.progress,
+    tasks: challenge.tasks,
+    startDate: challenge.startDate,
+    endDate: challenge.endDate,
+    certifications: challenge.certifications
+  });
+
   const getCategoryColor = (category: string) => {
     const colors = {
       '학습': 'bg-blue-100 text-blue-800',
@@ -122,7 +133,7 @@ export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps
             <span className={`text-xs sm:text-sm lg:text-base font-medium ${
               isCompleted ? 'text-green-600' : 'text-blue-600'
             }`}>
-              {challenge.progress}%
+              {typeof challenge.progress === 'number' ? `${challenge.progress}%` : '0%'}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2 lg:h-2.5">
@@ -130,10 +141,10 @@ export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps
               className={`h-1.5 sm:h-2 lg:h-2.5 rounded-full transition-all duration-300 ${
                 isCompleted ? 'bg-green-500' : 'bg-blue-600'
               }`}
-              style={{ width: `${challenge.progress}%` }}
-              aria-label={`진행률 ${challenge.progress}%`}
+              style={{ width: `${typeof challenge.progress === 'number' ? Math.min(challenge.progress, 100) : 0}%` }}
+              aria-label={`진행률 ${typeof challenge.progress === 'number' ? challenge.progress : 0}%`}
               role="progressbar"
-              aria-valuenow={challenge.progress}
+              aria-valuenow={typeof challenge.progress === 'number' ? challenge.progress : 0}
               aria-valuemin={0}
               aria-valuemax={100}
             ></div>

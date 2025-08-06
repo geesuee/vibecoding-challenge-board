@@ -20,6 +20,18 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
   useEffect(() => {
     if (isOpen && challenge) {
       setLocalChallenge(challenge);
+      // 디버깅을 위한 로그 추가
+      console.log('ChallengeModal challenge data:', {
+        id: challenge.id,
+        name: challenge.name,
+        tasks: challenge.tasks,
+        tasksType: typeof challenge.tasks,
+        tasksLength: Array.isArray(challenge.tasks) ? challenge.tasks.length : 'not array',
+        startDate: challenge.startDate,
+        endDate: challenge.endDate,
+        progress: challenge.progress,
+        certifications: challenge.certifications
+      });
     }
   }, [isOpen, challenge]);
 
@@ -42,6 +54,9 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
     setShowDeleteConfirm(false);
     onClose();
   };
+
+  // tasks 배열을 안전하게 처리
+  const safeTasks = Array.isArray(localChallenge.tasks) ? localChallenge.tasks : [];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -77,18 +92,18 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700">진행률</span>
-              <span className="text-sm font-medium text-blue-600">{localChallenge.progress}%</span>
+              <span className="text-sm font-medium text-blue-600">{typeof localChallenge.progress === 'number' ? `${localChallenge.progress}%` : '0%'}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-blue-600 h-3 rounded-full transition-all duration-300" style={{ width: `${localChallenge.progress}%` }}></div>
+              <div className="bg-blue-600 h-3 rounded-full transition-all duration-300" style={{ width: `${typeof localChallenge.progress === 'number' ? Math.min(localChallenge.progress, 100) : 0}%` }}></div>
             </div>
           </div>
 
           <div className="mb-4">
             <h3 className="text-sm font-medium text-gray-700 mb-2">주요 과제</h3>
             <ul className="space-y-1">
-              {Array.isArray(localChallenge.tasks) && localChallenge.tasks.length > 0 ? (
-                localChallenge.tasks.map((task, index) => (
+              {safeTasks.length > 0 ? (
+                safeTasks.map((task, index) => (
                   <li key={index} className="flex items-center text-sm text-gray-600">
                     <i className="ri-check-line text-green-500 mr-2"></i>{task}
                   </li>

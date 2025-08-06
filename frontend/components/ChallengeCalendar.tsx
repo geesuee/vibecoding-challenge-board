@@ -27,16 +27,23 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
     console.log('ChallengeCalendar props:', { startDate, endDate, certifications, status });
 
     const getTodayString = () => {
+        // 한국 시간대로 오늘 날짜를 가져오되, 시간대 변환으로 인한 날짜 변경을 방지
         const today = new Date();
-        const koreaTime = new Date(today.getTime() + 9 * 60 * 60 * 1000);
-        return koreaTime.toISOString().split('T')[0];
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const day = today.getDate();
+        
+        // 한국 시간대로 날짜 생성 (정오 시간으로 설정하여 시간대 문제 방지)
+        const koreaDate = new Date(year, month, day, 12, 0, 0, 0);
+        return koreaDate.toISOString().split('T')[0];
     };
 
     const generateCalendar = (): CalendarDay[][] => {
-        const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
+        const year = currentDate.getFullYear();
+        const start = new Date(year, month, 1);
+        const end = new Date(year, month + 1, 0);
         const firstDay = new Date(year, month, 1);
-        const start = new Date(firstDay);
         start.setDate(start.getDate() - firstDay.getDay());
 
         // 날짜 문자열을 직접 비교하기 위해 YYYY-MM-DD 형식으로 변환
@@ -48,21 +55,31 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
         const weeks: CalendarDay[][] = [];
         let currentWeek: CalendarDay[] = [];
 
+        // certifications 객체가 undefined인 경우 빈 객체로 초기화
+        const safeCertifications = certifications || {};
+
         // 디버깅을 위한 로그
         console.log('Calendar generation debug:', {
             challengeStartStr,
             challengeEndStr,
             today: today.toISOString(),
-            todayStr
+            todayStr,
+            certifications: safeCertifications
         });
 
         for (let i = 0; i < 42; i++) {
             const date = new Date(start);
             date.setDate(start.getDate() + i);
-            const dateStr = date.toISOString().split('T')[0];
+            
+            // 날짜를 한국 시간대로 처리 (정오 시간으로 설정)
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const day = date.getDate();
+            const koreaDate = new Date(year, month, day, 12, 0, 0, 0);
+            const dateStr = koreaDate.toISOString().split('T')[0];
 
-            // certifications 객체에서 해당 날짜의 인증 상태 확인
-            const isCertified = certifications[dateStr] === true || certifications[dateStr] === 'true' || certifications[dateStr] === 1;
+            // certifications 객체에서 해당 날짜의 인증 상태 확인 (안전하게)
+            const isCertified = safeCertifications[dateStr] === true || safeCertifications[dateStr] === 'true' || safeCertifications[dateStr] === 1;
             const isCurrentMonth = date.getMonth() === month;
             const isToday = dateStr === todayStr;
             
@@ -72,9 +89,9 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
             // 미인증 조건: 과거 날짜이고 챌린지 기간 내이며 인증되지 않은 경우
             const isMissed = dateStr < todayStr && isInChallengeRange && !isCertified;
 
-            // 디버깅을 위한 로그
+            // 디버깅을 위한 로그 (챌린지 기간 내의 날짜만)
             if (isInChallengeRange) {
-                console.log(`Date: ${dateStr}, isCertified: ${isCertified}, isMissed: ${isMissed}, certifications[dateStr]: ${certifications[dateStr]}, dateStr < todayStr: ${dateStr < todayStr}`);
+                console.log(`Date: ${dateStr}, isCertified: ${isCertified}, isMissed: ${isMissed}, certifications[dateStr]: ${safeCertifications[dateStr]}, dateStr < todayStr: ${dateStr < todayStr}`);
             }
 
             currentWeek.push({
@@ -101,6 +118,22 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
         newDate.setMonth(direction === 'prev' ? currentDate.getMonth() - 1 : currentDate.getMonth() + 1);
         setCurrentDate(newDate);
     };
+
+    // 챌린지 시작일이 현재 표시되는 월에 있는지 확인하여 자동으로 해당 월로 이동
+    React.useEffect(() => {
+        if (startDate) {
+            const challengeStartDate = new Date(startDate);
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            const challengeMonth = challengeStartDate.getMonth();
+            const challengeYear = challengeStartDate.getFullYear();
+            
+            // 챌린지 시작일이 현재 표시되는 월과 다르면 해당 월로 이동
+            if (currentMonth !== challengeMonth || currentYear !== challengeYear) {
+                setCurrentDate(new Date(challengeYear, challengeMonth, 1));
+            }
+        }
+    }, [startDate, currentDate]);
 
     const calendar = generateCalendar();
     const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
