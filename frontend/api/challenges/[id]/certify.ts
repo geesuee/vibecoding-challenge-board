@@ -74,7 +74,7 @@ async function handleCertify(req: NextApiRequest, res: NextApiResponse, id: stri
   }
 
   // 인증 데이터 업데이트
-  const certifications = challenge.certifications as Record<string, boolean>;
+  const certifications = JSON.parse(challenge.certifications || '{}') as Record<string, boolean>;
   certifications[date] = true;
 
   // 진행률 계산
@@ -112,7 +112,7 @@ async function handleUncertify(req: NextApiRequest, res: NextApiResponse, id: st
   }
 
   // 인증 데이터 업데이트
-  const certifications = challenge.certifications as Record<string, boolean>;
+  const certifications = JSON.parse(challenge.certifications || '{}') as Record<string, boolean>;
   delete certifications[date];
 
   // 진행률 계산
@@ -125,7 +125,7 @@ async function handleUncertify(req: NextApiRequest, res: NextApiResponse, id: st
   const updatedChallenge = await prisma.challenge.update({
     where: { id },
     data: {
-      certifications,
+      certifications: JSON.stringify(certifications),
       progress,
       status: progress >= 100 ? 'completed' : 'active',
     },

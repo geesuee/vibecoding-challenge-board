@@ -11,7 +11,7 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "seed": "npx ts-node seed.ts",
-    "vercel-build": "prisma generate && prisma db push && tsc"
+    "vercel-build": "prisma generate && tsc"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",

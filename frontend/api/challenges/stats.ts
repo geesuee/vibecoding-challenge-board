@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 총 인증 수 계산
     const totalCertifications = challenges.reduce((sum, challenge) => {
-      const certifications = challenge.certifications as Record<string, boolean>;
+      const certifications = JSON.parse(challenge.certifications || '{}') as Record<string, boolean>;
       return sum + Object.keys(certifications).filter(date => certifications[date]).length;
     }, 0);
 
@@ -71,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       let count = 0;
       challenges.forEach(challenge => {
-        const certifications = challenge.certifications as Record<string, boolean>;
+        const certifications = JSON.parse(challenge.certifications || '{}') as Record<string, boolean>;
         if (certifications[dateString]) {
           count++;
         }
@@ -120,7 +120,7 @@ function calculateStreakStats(challenges: any[]) {
 
     let hasCertification = false;
     challenges.forEach(challenge => {
-      const certifications = challenge.certifications as Record<string, boolean>;
+      const certifications = JSON.parse(challenge.certifications || '{}') as Record<string, boolean>;
       if (certifications[dateString]) {
         hasCertification = true;
       }

@@ -101,7 +101,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       tasks: tasks || [],
       progress: 0,
       status: 'active',
-      certifications: {},
+      certifications: JSON.stringify({}),
     },
   });
 
