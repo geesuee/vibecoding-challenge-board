@@ -13,16 +13,7 @@ interface ChallengeCardProps {
 export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps) {
   const [isPressed, setIsPressed] = useState(false);
 
-  // 디버깅을 위한 로그 추가
-  console.log('ChallengeCard render:', {
-    id: challenge.id,
-    name: challenge.name,
-    progress: challenge.progress,
-    tasks: challenge.tasks,
-    startDate: challenge.startDate,
-    endDate: challenge.endDate,
-    certifications: challenge.certifications
-  });
+
 
   const getCategoryColor = (category: string) => {
     const colors = {

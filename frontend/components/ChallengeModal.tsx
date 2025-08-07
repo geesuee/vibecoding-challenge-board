@@ -20,19 +20,7 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
   useEffect(() => {
     if (isOpen && challenge) {
       setLocalChallenge(challenge);
-          // 디버깅을 위한 로그 추가
-    console.log('ChallengeModal challenge data:', {
-      id: challenge.id,
-      name: challenge.name,
-      tasks: challenge.tasks,
-      tasksType: typeof challenge.tasks,
-      tasksLength: Array.isArray(challenge.tasks) ? challenge.tasks.length : 'not array',
-      tasksSample: Array.isArray(challenge.tasks) && challenge.tasks.length > 0 ? challenge.tasks[0] : 'no tasks',
-      startDate: challenge.startDate,
-      endDate: challenge.endDate,
-      progress: challenge.progress,
-      certifications: challenge.certifications
-    });
+      
     }
   }, [isOpen, challenge]);
 
@@ -108,19 +96,24 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
               {safeTasks.length > 0 ? (
                 safeTasks.map((task, index) => {
                   let taskText = '';
-                  if (typeof task === 'string') {
-                    taskText = task;
-                  } else if (typeof task === 'object' && task !== null) {
-                    const taskObj = task as any;
-                    taskText = taskObj.name || JSON.stringify(task);
-                  } else {
-                    taskText = String(task);
+                  try {
+                    if (typeof task === 'string') {
+                      taskText = task;
+                    } else if (typeof task === 'object' && task !== null) {
+                      const taskObj = task as any;
+                      taskText = taskObj.name || taskObj.title || taskObj.description || '과제';
+                    } else {
+                      taskText = String(task || '과제');
+                    }
+                  } catch (error) {
+                    console.error('Task rendering error:', error);
+                    taskText = '과제';
                   }
                   
                   return (
                     <li key={index} className="flex items-center text-sm text-gray-600">
                       <i className="ri-check-line text-green-500 mr-2"></i>
-                      {taskText}
+                      <span>{taskText}</span>
                     </li>
                   );
                 })

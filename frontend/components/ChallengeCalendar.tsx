@@ -23,15 +23,7 @@ interface ChallengeCalendarProps {
 export default function ChallengeCalendar({ startDate, endDate, certifications, status }: ChallengeCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    // 디버깅을 위한 로그
-    console.log('ChallengeCalendar props:', { 
-      startDate, 
-      endDate, 
-      certifications, 
-      certificationsType: typeof certifications,
-      certificationsIsArray: Array.isArray(certifications),
-      status 
-    });
+
 
     const getTodayString = () => {
         // 한국 시간대로 오늘 날짜를 가져오되, 시간대 변환으로 인한 날짜 변경을 방지
@@ -65,14 +57,7 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
             // certifications 객체가 undefined인 경우 빈 객체로 초기화
     const safeCertifications = certifications && typeof certifications === 'object' ? certifications : {};
 
-        // 디버깅을 위한 로그
-        console.log('Calendar generation debug:', {
-            challengeStartStr,
-            challengeEndStr,
-            today: today.toISOString(),
-            todayStr,
-            certifications: safeCertifications
-        });
+        
 
         for (let i = 0; i < 42; i++) {
             const date = new Date(start);
@@ -96,10 +81,7 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
             // 미인증 조건: 과거 날짜이고 챌린지 기간 내이며 인증되지 않은 경우
             const isMissed = dateStr < todayStr && isInChallengeRange && !isCertified;
 
-            // 디버깅을 위한 로그 (챌린지 기간 내의 날짜만)
-            if (isInChallengeRange) {
-                console.log(`Date: ${dateStr}, isCertified: ${isCertified}, isMissed: ${isMissed}, certifications[dateStr]: ${safeCertifications[dateStr]}, dateStr < todayStr: ${dateStr < todayStr}`);
-            }
+            
 
             currentWeek.push({
                 date: date.getDate(),
