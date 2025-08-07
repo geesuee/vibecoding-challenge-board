@@ -161,7 +161,7 @@ export async function POST() {
     return NextResponse.json({ 
       success: false, 
       error: '데이터베이스 초기화 실패',
-      details: error.message 
+      details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   }
 } 
