@@ -45,8 +45,11 @@ export interface CreateChallengeData {
 
 // API 호출 헬퍼 함수
 async function apiCall<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
+  console.log(`🌐 API 호출: ${url}`);
+  
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         ...options?.headers,
@@ -54,15 +57,29 @@ async function apiCall<T>(endpoint: string, options?: RequestInit): Promise<T> {
       ...options,
     });
 
+    console.log(`📡 응답 상태: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
       // 에러 응답의 JSON을 파싱하려고 시도
-      let errorMessage = `API call failed: ${response.statusText}`;
+      let errorMessage = `API call failed: ${response.status} ${response.statusText}`;
+      let errorDetails = null;
+      
       try {
         const errorData = await response.json();
         errorMessage = errorData.error || errorData.message || errorMessage;
+        errorDetails = errorData.details || errorData;
       } catch (e) {
-        // JSON 파싱 실패 시 기본 메시지 사용
+        console.warn('JSON 파싱 실패, 기본 에러 메시지 사용');
       }
+      
+      console.error('❌ API 에러:', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        error: errorMessage,
+        details: errorDetails
+      });
+      
       throw new Error(errorMessage);
     }
 
@@ -71,9 +88,15 @@ async function apiCall<T>(endpoint: string, options?: RequestInit): Promise<T> {
       return {} as T;
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log(`✅ API 응답 성공: ${endpoint}`);
+    return data;
   } catch (error) {
-    console.error('API call error:', error);
+    console.error('❌ API call error:', {
+      url,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
     throw error;
   }
 }

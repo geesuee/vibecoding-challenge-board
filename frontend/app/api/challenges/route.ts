@@ -81,7 +81,19 @@ const calculateProgress = (startDate: string, endDate: string, certifications: a
 
 // GET /api/challenges - 모든 챌린지 조회
 export async function GET() {
+  console.log('🔍 GET /api/challenges 시작');
+  console.log('📊 환경 변수 확인:', {
+    NODE_ENV: process.env.NODE_ENV,
+    DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+    DIRECT_CONNECTION: process.env.DIRECT_CONNECTION ? 'SET' : 'NOT_SET',
+    TRANSACTION_POOLER: process.env.TRANSACTION_POOLER ? 'SET' : 'NOT_SET'
+  });
+  
   try {
+    console.log('🔌 Prisma 연결 시도...');
+    await prisma.$connect();
+    console.log('✅ Prisma 연결 성공');
+    
     const challenges = await prisma.challenge.findMany({
       include: {
         certifications: true
@@ -90,6 +102,8 @@ export async function GET() {
         createdAt: 'desc'
       }
     });
+    
+    console.log(`📋 챌린지 조회 성공: ${challenges.length}개`);
 
     // 진행률 계산 및 상태 업데이트
     const challengesWithProgress = await Promise.all(challenges.map(async challenge => {
@@ -135,8 +149,23 @@ export async function GET() {
 
     return NextResponse.json(challengesWithProgress);
   } catch (error) {
-    console.error('Error fetching challenges:', error);
-    return NextResponse.json({ error: 'Failed to fetch challenges' }, { status: 500 });
+    console.error('❌ Error fetching challenges:', error);
+    console.error('🔍 Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    return NextResponse.json({ 
+      error: 'Failed to fetch challenges',
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
+  } finally {
+    try {
+      await prisma.$disconnect();
+      console.log('🔌 Prisma 연결 해제 완료');
+    } catch (disconnectError) {
+      console.error('❌ Prisma 연결 해제 실패:', disconnectError);
+    }
   }
 }
 

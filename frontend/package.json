@@ -12,7 +12,9 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "deploy": "vercel --prod",
-    "deploy:preview": "vercel"
+    "deploy:preview": "vercel",
+    "check-env": "node scripts/check-env.js",
+    "prebuild": "npm run check-env"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
