@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../../lib/prisma';
 
 // 날짜 문자열을 Date 객체로 변환하는 헬퍼 함수
 const parseDateString = (dateString: string): Date => {

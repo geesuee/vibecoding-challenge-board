@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../lib/prisma';
 
 // 카테고리별 기본 이미지
 const DEFAULT_IMAGES = {
@@ -93,12 +91,28 @@ export async function GET() {
       }
     });
 
-    // 진행률 계산
-    const challengesWithProgress = challenges.map(challenge => {
+    // 진행률 계산 및 상태 업데이트
+    const challengesWithProgress = await Promise.all(challenges.map(async challenge => {
       const progress = calculateProgress(challenge.startDate, challenge.endDate, challenge.certifications);
+      
+      // 종료일이 지났으면 상태를 'completed'로 업데이트
+      const today = new Date();
+      const endDate = parseDateString(challenge.endDate);
+      let updatedStatus = challenge.status;
+      
+      if (endDate < today && challenge.status === 'active') {
+        // 상태를 'completed'로 업데이트
+        await prisma.challenge.update({
+          where: { id: challenge.id },
+          data: { status: 'completed' }
+        });
+        updatedStatus = 'completed';
+        console.log(`✅ 챌린지 상태 업데이트: ${challenge.name} -> completed`);
+      }
 
       return {
         ...challenge,
+        status: updatedStatus,
         startDate: formatDateToKST(parseDateString(challenge.startDate)),
         endDate: formatDateToKST(parseDateString(challenge.endDate)),
         tasks: (() => {
@@ -117,7 +131,7 @@ export async function GET() {
             }, {})
           : {}
       };
-    });
+    }));
 
     return NextResponse.json(challengesWithProgress);
   } catch (error) {

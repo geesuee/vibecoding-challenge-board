@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../../lib/prisma';
 
 // 날짜 문자열을 Date 객체로 변환하는 헬퍼 함수
 const parseDateString = (dateString: string): Date => {
@@ -60,14 +58,29 @@ export async function GET(
       return NextResponse.json({ error: 'Challenge not found' }, { status: 404 });
     }
 
-    const startDate = parseDateString(challenge.startDate);
+    // 종료일이 지났으면 상태를 'completed'로 업데이트
+    const today = new Date();
     const endDate = parseDateString(challenge.endDate);
+    let updatedStatus = challenge.status;
+    
+    if (endDate < today && challenge.status === 'active') {
+      // 상태를 'completed'로 업데이트
+      await prisma.challenge.update({
+        where: { id: challenge.id },
+        data: { status: 'completed' }
+      });
+      updatedStatus = 'completed';
+      console.log(`✅ 챌린지 상태 업데이트: ${challenge.name} -> completed`);
+    }
+
+    const startDate = parseDateString(challenge.startDate);
     const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const certifiedDays = challenge.certifications.length;
     const progress = Math.round((certifiedDays / totalDays) * 100);
 
     const response = {
       ...challenge,
+      status: updatedStatus,
       startDate: formatDateToKST(startDate),
       endDate: formatDateToKST(endDate),
       tasks: (() => {

@@ -24,7 +24,14 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
     const [currentDate, setCurrentDate] = useState(new Date());
 
     // 디버깅을 위한 로그
-    console.log('ChallengeCalendar props:', { startDate, endDate, certifications, status });
+    console.log('ChallengeCalendar props:', { 
+      startDate, 
+      endDate, 
+      certifications, 
+      certificationsType: typeof certifications,
+      certificationsIsArray: Array.isArray(certifications),
+      status 
+    });
 
     const getTodayString = () => {
         // 한국 시간대로 오늘 날짜를 가져오되, 시간대 변환으로 인한 날짜 변경을 방지
@@ -55,8 +62,8 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
         const weeks: CalendarDay[][] = [];
         let currentWeek: CalendarDay[] = [];
 
-        // certifications 객체가 undefined인 경우 빈 객체로 초기화
-        const safeCertifications = certifications || {};
+            // certifications 객체가 undefined인 경우 빈 객체로 초기화
+    const safeCertifications = certifications && typeof certifications === 'object' ? certifications : {};
 
         // 디버깅을 위한 로그
         console.log('Calendar generation debug:', {
@@ -119,21 +126,22 @@ export default function ChallengeCalendar({ startDate, endDate, certifications, 
         setCurrentDate(newDate);
     };
 
-    // 챌린지 시작일이 현재 표시되는 월에 있는지 확인하여 자동으로 해당 월로 이동
+    // 챌린지 상태에 따라 기본 월 설정 (초기 로드 시에만)
     React.useEffect(() => {
         if (startDate) {
-            const challengeStartDate = new Date(startDate);
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            const challengeMonth = challengeStartDate.getMonth();
-            const challengeYear = challengeStartDate.getFullYear();
+            let targetDate;
             
-            // 챌린지 시작일이 현재 표시되는 월과 다르면 해당 월로 이동
-            if (currentMonth !== challengeMonth || currentYear !== challengeYear) {
-                setCurrentDate(new Date(challengeYear, challengeMonth, 1));
+            if (status === 'completed') {
+                // 완료된 챌린지: 시작일이 포함된 월
+                targetDate = new Date(startDate);
+            } else {
+                // 진행중인 챌린지: 오늘 날짜가 포함된 월
+                targetDate = new Date();
             }
+            
+            setCurrentDate(new Date(targetDate.getFullYear(), targetDate.getMonth(), 1));
         }
-    }, [startDate, currentDate]);
+    }, [startDate, status]);
 
     const calendar = generateCalendar();
     const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];

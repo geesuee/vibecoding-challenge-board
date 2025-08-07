@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../../../lib/prisma';
 
 // 날짜 문자열을 YYYY-MM-DD 형식으로 변환하는 함수 (한국 시간대 기준)
 const createDateOnly = (dateString: string): string => {

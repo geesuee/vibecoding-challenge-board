@@ -20,18 +20,19 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
   useEffect(() => {
     if (isOpen && challenge) {
       setLocalChallenge(challenge);
-      // 디버깅을 위한 로그 추가
-      console.log('ChallengeModal challenge data:', {
-        id: challenge.id,
-        name: challenge.name,
-        tasks: challenge.tasks,
-        tasksType: typeof challenge.tasks,
-        tasksLength: Array.isArray(challenge.tasks) ? challenge.tasks.length : 'not array',
-        startDate: challenge.startDate,
-        endDate: challenge.endDate,
-        progress: challenge.progress,
-        certifications: challenge.certifications
-      });
+          // 디버깅을 위한 로그 추가
+    console.log('ChallengeModal challenge data:', {
+      id: challenge.id,
+      name: challenge.name,
+      tasks: challenge.tasks,
+      tasksType: typeof challenge.tasks,
+      tasksLength: Array.isArray(challenge.tasks) ? challenge.tasks.length : 'not array',
+      tasksSample: Array.isArray(challenge.tasks) && challenge.tasks.length > 0 ? challenge.tasks[0] : 'no tasks',
+      startDate: challenge.startDate,
+      endDate: challenge.endDate,
+      progress: challenge.progress,
+      certifications: challenge.certifications
+    });
     }
   }, [isOpen, challenge]);
 
@@ -56,7 +57,9 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
   };
 
   // tasks 배열을 안전하게 처리
-  const safeTasks = Array.isArray(localChallenge.tasks) ? localChallenge.tasks : [];
+  const safeTasks = Array.isArray(localChallenge.tasks) 
+    ? localChallenge.tasks.filter(task => task !== null && task !== undefined)
+    : [];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -103,11 +106,24 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
             <h3 className="text-sm font-medium text-gray-700 mb-2">주요 과제</h3>
             <ul className="space-y-1">
               {safeTasks.length > 0 ? (
-                safeTasks.map((task, index) => (
-                  <li key={index} className="flex items-center text-sm text-gray-600">
-                    <i className="ri-check-line text-green-500 mr-2"></i>{task}
-                  </li>
-                ))
+                safeTasks.map((task, index) => {
+                  let taskText = '';
+                  if (typeof task === 'string') {
+                    taskText = task;
+                  } else if (typeof task === 'object' && task !== null) {
+                    const taskObj = task as any;
+                    taskText = taskObj.name || JSON.stringify(task);
+                  } else {
+                    taskText = String(task);
+                  }
+                  
+                  return (
+                    <li key={index} className="flex items-center text-sm text-gray-600">
+                      <i className="ri-check-line text-green-500 mr-2"></i>
+                      {taskText}
+                    </li>
+                  );
+                })
               ) : (
                 <li className="text-sm text-gray-500 italic">등록된 과제가 없습니다.</li>
               )}
@@ -117,12 +133,12 @@ export default function ChallengeModal({ challenge, isOpen, onClose, onEdit, onD
           <div className="mb-6">
             <h3 className="text-sm font-medium text-gray-700 mb-2">인증 현황</h3>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <ChallengeCalendar
-                startDate={localChallenge.startDate}
-                endDate={localChallenge.endDate}
-                certifications={localChallenge.certifications}
-                status={localChallenge.status}
-              />
+                          <ChallengeCalendar
+              startDate={localChallenge.startDate}
+              endDate={localChallenge.endDate}
+              certifications={localChallenge.certifications && typeof localChallenge.certifications === 'object' ? localChallenge.certifications : {}}
+              status={localChallenge.status}
+            />
             </div>
           </div>
 
